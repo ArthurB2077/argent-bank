@@ -1,6 +1,7 @@
 # Argent Bank API
+This project allow a user to connect in his client bank account. An auth system is functionnal and the user can consults his specific's data after had been authenticated.
 
-# Getting Started with client
+## Getting Started with client
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
