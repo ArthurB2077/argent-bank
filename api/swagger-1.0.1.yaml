@@ -1,0 +1,530 @@
+swagger: '2.0'
+info:
+  title: Bank Argent API documentation
+  description: New API endpoints proposal for user account page. Contains all available API endpoints in this codebase
+  version: '1.0.1'
+  termsOfService: 'http://swagger.io/terms/'
+host: localhost:3001
+basePath: /api/v1
+schemes:
+  - http
+tags:
+- name: User Module
+  description: Operations about user
+- name: Accounts Module
+  description: Operations about user's accounts
+- name: Transactions Module
+  description: Operations about user's account transactions
+paths:
+  /user/login:
+    post:
+      tags:
+        - User Module
+      summary: Login
+      description: API for Login
+      parameters:
+        - in: body
+          name: body
+          description: Login Payload
+          required: true
+          schema:
+            $ref: '#/definitions/Login'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Login Successfully
+          schema:
+            $ref: '#/definitions/LoginResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /user/signup:
+    post:
+      tags:
+        - User Module
+      summary: Signup
+      description: API for Signup
+      parameters:
+        - in: body
+          name: body
+          description: Signup Payload
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Signup Successfully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /user/profile:
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: User Profile API
+      description: API for fetching a user profile
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          type: string
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: User profile retrieved successully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+    put:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: User Profile API
+      description: API for updating a user profile
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          type: string
+          required: true
+        - in: body
+          name: body
+          description: Update user profile attributes
+          required: true
+          schema:
+            $ref: '#/definitions/UserProfile'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: User profile retrieved successully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /user/accounts:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Accounts Module
+      summary: Retrieve a collection of User Accounts
+      description: Retrieve all accounts for the user connected
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: User accounts retrieved successully
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Account'
+        "401":
+          description: Invalid credentials
+        "404":
+          description: Ressource cannot be found
+        "500":
+          description: Internal Server Error
+    post:
+      security:
+        - Bearer: []
+      tags:
+       - Accounts Module
+      summary: Create a User Account
+      description: Create a new user account if the user connected is super user
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          type: string
+          required: true
+        - name: body
+          in: body
+          description: Account to create with the super user email
+          required: true
+          schema:
+            properties:
+              email:
+                type: string
+                description: Email of the super user
+              account:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    description: account title
+                  description:
+                    type: string
+                    description: account description
+                  amount:
+                    type: integer
+                    description: amount of the account
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: User account successully created
+        "400":
+          description: Invalid email supply. You need to be super user to execute this action
+        "401":
+          description: Invalid credentials
+        "404":
+          description: Ressource cannot be found
+        "500":
+          description: Internal Server Error
+  /user/accounts/{id}:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Accounts Module
+      summary: Retrieve a User Account
+      description: Retrieve a user's account with the provided id
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+        - in: path
+          name: id
+          description: Account Id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: User account retrieved successully
+          schema:
+              $ref: '#/definitions/Account'
+        "400":
+          description: Invalid id supply
+        "401":
+          description: Invalid credentials
+        "404":
+          description: Ressource cannot be found
+        "500":
+          description: Internal Server Error
+    delete:
+      security:
+        - Bearer: []      
+      tags:
+        - Accounts Module
+      summary: Delete a User Account
+      description: Delete a user account if the user connected is super user
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          type: string
+          required: true
+        - name: id
+          in: path
+          description: Account id to delete
+          required: true
+          type: string
+        - name: email
+          in: body
+          description: Email of the super user
+          required: true
+          schema:
+            properties:
+              email:
+                type: string
+                description: Email of the super user
+      produces:
+        - application/json
+      responses:
+        "400":
+          description: Invivalid id or email. You need to be super user to execute this action
+        "401":
+          description: Invalid credentials
+        "404":
+          description: Ressource cannot be found
+        "500":
+          description: Internal Server Error
+  /user/accounts/{id}/transactions:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Transactions Module
+      summary: Retrieve a collection of User Transactions
+      description: Retrieve all the transactions of a account for the user connected
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+        - in: path
+          name: id
+          description: Account Id
+          required: true
+          type: string
+        - in: query
+          name: page
+          description: Page of the collection to retrieve
+          type: integer
+          default: 1
+        - in: query
+          name: items_per_page
+          description: Items per page
+          type: integer
+          default: 10
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Transaction for a User account
+          schema:
+            allOf:
+              - $ref: "#/definitions/PaginatedItems"
+              - type: object
+                properties:
+                  items:
+                    type: array           
+                    items:
+                      $ref: '#/definitions/Transaction'
+        "400":
+          description: Invivalid id supply
+        "401":
+          description: Invalid credentials
+        "404":
+          description: Ressource cannot be found
+        "500":
+          description: Internal Server Error
+  /user/accounts/{id}/transactions/{transactionId}:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Transactions Module
+      summary: Retrieve a Transaction
+      description: Retrieve a specific transaction of a account for the user connected
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+        - in: path
+          name: id
+          description: Account Id
+          required: true
+          type: string
+        - in: path
+          name: transactionId
+          description: Transaction Id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Transaction succesfully retrieved
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Transaction'
+        "400":
+          description: Invivalid transaction or account id supply
+        "401":
+          description: Invalid credentials
+        "404":
+          description: Ressource cannot be found
+        "500":
+          description: Internal Server Error
+    patch:
+      security:
+        - Bearer: []
+      tags:
+        - Transactions Module
+      summary: Update a Transaction
+      description: Update category and notes properties of a transaction
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+        - in: path
+          name: id
+          description: Account Id
+          required: true
+          type: string
+        - in: path
+          name: transactionId
+          description: Transaction Id
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Transaction properties to update
+          required: true
+          schema:
+            properties:
+              category:
+                type: string
+                description: amount of the account
+              notes:
+                type: string
+                description: amount of the account
+      responses:
+        '200':
+          description: Transaction successfully updated
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        "400":
+          description: Invivalid transaction or account id supply
+        "401":
+          description: Invalid credentials
+        "404":
+          description: Ressource cannot be found
+        "500":
+          description: Internal Server Error
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  User:
+    properties:
+      email:
+        type: string
+        description: user email
+      password:
+        type: string
+        description: user password
+      firstName:
+        type: string
+        description: user first name
+      lastName:
+        type: string
+        description: user last name
+      isSuperUser:
+        type: boolean
+        description: is user admin
+        default: false
+  Login:
+    properties:
+      email:
+        type: string
+        description: user email
+      password:
+        type: string
+        description: user password
+  Account:
+    properties: 
+      id:
+        type: string
+        description: account identifier
+      title:
+        type: string
+        description: account title
+      description:
+        type: string
+        description: account description
+      amount:
+        type: integer
+        description: amount of the account
+      transactions:
+        type: array
+        items:
+          $ref: '#/definitions/Transaction'
+  Transaction:
+    properties:
+      id:
+        type: string
+        description: account identifier
+      date:
+        type: string
+        description: account title
+      description:
+        type: string
+        description: account description
+      amount:
+        type: integer
+        description: amount of the account
+      balance:
+        type: integer
+        description: amount of the account
+      transactionType:
+        type: string
+        description: amount of the account
+      category:
+        type: string
+        description: amount of the account
+      notes:
+        type: string
+        description: amount of the account
+      accountId:
+        type: string
+        description: account identifier
+  ApiResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      body:
+        type: object
+        properties:
+          id:
+            type: string
+          email:
+            type: string
+  LoginResponse:
+    type: object
+    properties:
+      token:
+        type: string
+  UserProfile:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+  PaginatedItems:
+    type: object
+    properties:
+      total_items:
+        type: number
+      page:
+        type: number
+      items_per_page:
+        type: number
+      has_next: 
+        type: boolean
+      has_prev:
+        type: boolean
+      items:
+        type: array
+        items: {}
